@@ -1,4 +1,16 @@
 class FlyingTextClass{
+    resize(){
+        this.#clean();
+        this.#sizeSetup();
+        this.#canvasInit();
+    };
+    async run(){
+        while(true){
+            await this.#wait();
+            this.#round_start = Date.now();
+            this.#round();
+       }
+    };
     #interval = 20;
     #speed = 2;
     #position = 0;
@@ -27,19 +39,24 @@ class FlyingTextClass{
             );
         this.#holder = holder_;
         this.#sizeSetup();
+        this.#positionSetup();
         this.#canvasInit();
         this.#textSetup();
         this.#textMesure(text_);
+        this.resize = this.resize.bind(this);
     };
     #sizeSetup(){
         this.#details = this.#holder.getBoundingClientRect();
         this.#width = parseInt(this.#details.width);
+    };
+    #positionSetup(){
         this.#position = parseInt(this.#details.width);
     };
     #canvasInit(){
         this.#canvas = document.createElement('canvas');
         this.#ctx = this.#canvas.getContext('2d');
         this.#canvas.setAttribute('width',  this.#width);
+        this.#holder.appendChild(this.#canvas);
     };
     #textSetup(){
         this.#ctx.font = "30px Arial";
@@ -49,6 +66,10 @@ class FlyingTextClass{
         this.#original_size = this.#ctx.measureText(text_);
         this.#full_size = this.#ctx.measureText(this.#text);
         this.#break_point = Math.floor(Math.floor(this.#full_size.width)/2);
+    };
+    #clean(){
+        this.#holder.removeChild(this.#canvas);
+
     };
     #round(){
         this.#position -= this.#speed;
@@ -75,13 +96,5 @@ class FlyingTextClass{
         const delay = this.#interval-(Date.now()-this.#round_start);
         if(delay > 0)
             await new Promise(r=>setTimeout(r, delay));
-    };
-    async run(){
-        this.#holder.appendChild(this.#canvas);
-        while(true){
-            await this.#wait();
-            this.#round_start = Date.now();
-            this.#round();
-       }
     };
 };
